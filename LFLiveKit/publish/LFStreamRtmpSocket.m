@@ -488,10 +488,13 @@ Failed:
             self.isConnected = NO;
             self.isConnecting = NO;
             self.isReconnecting = YES;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                 [self performSelector:@selector(_reconnect) withObject:nil afterDelay:self.reconnectInterval];
-            });
-           
+            //            dispatch_async(dispatch_get_main_queue(), ^{
+            //                 [self performSelector:@selector(_reconnect) withObject:nil afterDelay:self.reconnectInterval];
+            //            });
+            dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, self.reconnectInterval * NSEC_PER_SEC);
+            dispatch_after(delay, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                [self _reconnect];
+                });
         } else if (self.retryTimes4netWorkBreaken >= self.reconnectCount) {
             if (self.delegate && [self.delegate respondsToSelector:@selector(socketStatus:status:)]) {
                 [self.delegate socketStatus:self status:LFLiveError];
